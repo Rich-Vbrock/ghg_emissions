@@ -1,0 +1,55 @@
+---
+title: "ghg_emissions"
+author: "Richard Viebrock"
+date: "6/24/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Attach packages
+
+library(tidyverse)
+library(janitor)
+library(readxl)
+
+# Avoid Scientific Notation
+options(scipen=999)
+
+```
+
+```{r}
+
+# Read in raw data
+
+raw_ghg <- read_excel("2018-ghg-emissions-2019-11-04.xlsx", 
+                      sheet = "2018 GHG Data",
+                      skip = 8) %>% 
+  clean_names() %>% 
+  rename("naics" = "north_american_industry_classification_system_naics_code_and_description",
+         "total_co2e" = "total_co2e_combustion_process_vented_and_supplier")
+
+```
+
+```{r}
+
+# Narrow down raw data to desired columns: facility names, total CO2e, city, state, naics, industry sector. Filter for only California
+
+narrow_ghg <- raw_ghg %>% 
+  select(facility_name, naics, total_co2e, city, state, industry_sector) %>% 
+  filter(state == "CA")
+
+```
+
+```{r}
+
+# Create data frame for fossil fuel generation
+
+egu_ghg <- narrow_ghg %>% 
+  filter(naics == "221112 - Fossil Fuel Electric Power Generation")
+
+```
+
